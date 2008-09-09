@@ -36,7 +36,7 @@ foreach( $layers as &$layer ){
 
 	$key_data = array();
 	
-	$keyHTML = "<div class='maptype_key'>";
+	$keyHTML = "<div class='tilelayer_key'>";
 
 	foreach( $rules as &$rule ){
 		$color = null;
@@ -53,50 +53,32 @@ foreach( $layers as &$layer ){
 			}
 		}
 
-		$keyHTML .= "<div class='maptype_key_row'><div class='maptype_key_color' style='background-color:".$color.";'></div>&nbsp;".$range."</div>";
+		$keyHTML .= "<div class='tilelayer_key_row'><div class='tilelayer_key_color' style='background-color:".$color.";'></div>&nbsp;".$range."</div>";
 	}
 
 	$keyHTML .= "</div>";
 	// end - make maptype key html
 
-	// prep maptype
-
-	$maptypeData = array(
-		'name'=>$title,
-		'shortname'=>substr( $title, 0, 4 ),
-		'description'=>$keyHTML,
-		'minzoom'=>0,
-		'maxzoom'=>17,
-		'errormsg'=>'',
+	// prep tilelayer
+	$tilelayerData = array(
+		'tiles_name'=>$title,
+		'tiles_minzoom'=>0,
+		'tiles_maxzoom'=>17,
+		'ispng'=>'false',
+		'tilesurl'=>$tileUrl,
+		'opacity'=>.7,
 	);
 
-	// see if we already have a maptype by this name, and if we do, update it, otherwise we make a new one
-	$maptypeData['maptype_id'] = geoserverGetMapTypeByName( $maptypeData ); 
+	$tilelayerData['tilelayer_id'] = geoserverGetTilelayerByName( $tilelayerData );
 
-	// store maptype
-	if( $maptype = $gContent->storeMapType( $maptypeData ) ){
-		// prep tilelayer
-		$tilelayerData = array(
-			'tiles_name'=>$title,
-			'tiles_minzoom'=>0,
-			'tiles_maxzoom'=>17,
-			'ispng'=>'false',
-			'tilesurl'=>$tileUrl,
-			'opacity'=>.7,
-			'maptype_id'=>$maptype['maptype_id'],
-		);
-
-		$tilelayerData['tilelayer_id'] = geoserverGetTilelayerByName( $tilelayerData );
-
-		// store tilelayer		
-		if( $tilelayer = $gContent->storeTilelayer( $tilelayerData ) ){
-			$rslts[] = 'Tile layer "'.$title.'" stored';
-		}else{
-			$rslts[] = 'Maptype created for tile layer "'.$title.'" but tilelayer row storage failed';
-		}
+	// store tilelayer		
+	if( $tilelayer = $gContent->storeTilelayer( $tilelayerData ) ){
+		$rslts[] = 'Tile layer "'.$title.'" stored';
 	}else{
-		$rslts[] = 'Storage of tile layer"'.$title.'" failed';
+		$rslts[] = 'Tile layer "'.$title.'" storage FAILED!';
 	}
+
+	// store data key html for tile layer
 }
 
 $centerContent = '';
@@ -107,28 +89,4 @@ foreach( $rslts as $rslt ){
 $gBitSmarty->assign( 'centerContent', $centerContent );
 
 $gBitSystem->display( 'bitpackage:geoserver/csv_tilelayers_import.tpl', tra( 'Import Tilelayers' ), array( 'display_mode' => 'admin' ));
-
-
-/*
-// DEPRECATED slated for delete
-
-// get each geoserver csv tilelayer xml file
-if( !empty( $gsStylesDir ) && is_dir( $gsStylesDir ) && $handle = opendir( $gsStylesDir )) {
-	while( FALSE !== ( $file = readdir( $handle ))) {
-		if( !is_dir( $gsStylesDir."/".$file ) ) {
-			$xml =  file_get_contents( $gsStylesDir."/".$file );
-		//	if( preg_match( "text/xml", $file['type'] )) {
-		//	}
-			// if( preg_match( "#_view)$#i", $file )) {
-			// extract each tilelayer
-			$doc = new DOMDocument();
-			$doc->loadXML( $xml );
-			// parse image path
-			// parse key data
-			// store
-		}
-	}
-}
-*/
-
 ?>
