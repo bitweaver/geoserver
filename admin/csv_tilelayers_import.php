@@ -69,11 +69,16 @@ foreach( $layers as &$layer ){
 		'opacity'=>.7,
 	);
 
+	// if it already exists we'll update it
 	$tilelayerData['tilelayer_id'] = geoserverGetTilelayerByName( $tilelayerData );
 
 	// store tilelayer		
 	if( $tilelayer = $gContent->storeTilelayer( $tilelayerData ) ){
 		$rslts[] = 'Tile layer "'.$title.'" stored';
+
+		// store the tilelayer key html
+		$tilelayer['datakey'] = $keyHTML;
+		geoserverStoreTilelayerMetaData( $tilelayer );
 	}else{
 		$rslts[] = 'Tile layer "'.$title.'" storage FAILED!';
 	}

@@ -17,26 +17,11 @@ function geoserverGetXML( $pPath ){
 	return $xml;
 }
 
-function geoserverGetMapTypeByName( $pParam ){
+function geoserverGetTilelayerByName( &$pParamHash ){
 	global $gBitSystem;
 
 	// make sure the name is not too long incase some dumbo uploads a layer with too long a name
-	$bindVars = array( substr( $pParam['name'], 0, 64 ) );
-
-	$query = "SELECT bmt.maptype_id
-			FROM `".BIT_DB_PREFIX."gmaps_maptypes` bmt
-			WHERE bmt.`name` = ?";
-
-	$ret = $gBitSystem->mDb->getOne( $query, $bindVars );
-
-	return $ret;
-}
-
-function geoserverGetTilelayerByName( $pParam ){
-	global $gBitSystem;
-
-	// make sure the name is not too long incase some dumbo uploads a layer with too long a name
-	$bindVars = array( substr( $pParam['tiles_name'], 0, 64 ) );
+	$bindVars = array( substr( $pParamHash['tiles_name'], 0, 64 ) );
 
 	$query = "SELECT gtl.tilelayer_id
 			FROM `".BIT_DB_PREFIX."gmaps_tilelayers` gtl
@@ -44,6 +29,70 @@ function geoserverGetTilelayerByName( $pParam ){
 
 	$ret = $gBitSystem->mDb->getOne( $query, $bindVars );
 
+	return $ret;
+}
+
+function geoserverGetTilelayerList( &$pListHash ){
+	global $gBitSystem;
+
+	require_once( LIBERTY_PKG_PATH."LibertyContent.php" );
+
+	$bindVars = $ret = array();
+
+	if( empty( $pListHash['sort_mode'] )) {
+		$pListHash['sort_mode'] = array( 'gtl.`tiles_name_asc`' );
+	}
+	@LibertyContent::prepGetList( $pListHash );
+
+	$joinSql = " INNER JOIN `".BIT_DB_PREFIX."geoserver_tilelayers_meta` gtm ON( gtm.`tilelayer_id` = gtl.`tilelayer_id` ) ";
+	$selectSql = ", gtm.*";
+	$whereSql = "";
+
+	$sql = "SELECT gtl.* $selectSql
+			FROM `".BIT_DB_PREFIX."gmaps_tilelayers` gtl $joinSql
+			ORDER BY ".$gBitSystem->mDb->convertSortmode( $pListHash['sort_mode'] );
+
+	$result = $gBitSystem->mDb->query( $sql, $bindVars, $pListHash['max_records'], $pListHash['offset'] );
+
+	while( $aux = $result->fetchRow() ) {
+		$ret[] = $aux;
+	}
+
+	$pListHash['cant'] = $gBitSystem->mDb->getOne( "SELECT COUNT( gtl.`tilelayer_id` ) FROM `".BIT_DB_PREFIX."gmaps_tilelayers` gtl $joinSql $whereSql", $bindVars );
+
+	@LibertyContent::postGetList( $pListHash );
+
+	return $ret;
+}
+
+function geoserverVerifyTilelayerMetaData( &$pParamHash ){
+	$pParamHash['meta_store'] = array();
+
+	if( isset( $pParamHash['tilelayer_id'] ) ) {
+		$pParamHash['meta_store']['tilelayer_id'] = $pParamHash['tilelayer_id'];
+	}	
+	if( isset( $pParamHash['datakey'] ) ) {
+		$pParamHash['meta_store']['datakey'] = $pParamHash['datakey'];
+	}	
+
+	return $pParamHash['meta_store'];
+}
+
+function geoserverStoreTilelayerMetaData( &$pParamHash ){
+	global $gBitSystem;
+	$ret = FALSE;
+	if( @BitBase::verifyId( $pParamHash['tilelayer_id'] ) && geoserverVerifyTilelayerMetaData( $pParamHash ) ) {
+		$gBitSystem->mDb->StartTrans();
+		
+		// If metadata for this tilelayer was stored before delete it then store it new
+		$query = "DELETE FROM `".BIT_DB_PREFIX."geoserver_tilelayers_meta` WHERE `tilelayer_id` =?"; 
+		$result = $gBitSystem->mDb->query( $query, array( $pParamHash['tilelayer_id'] ) );
+
+		$gBitSystem->mDb->associateInsert( BIT_DB_PREFIX."geoserver_tilelayers_meta", $pParamHash['meta_store'] );	
+
+		$gBitSystem->mDb->CompleteTrans();
+		$ret = TRUE;		
+	}
 	return $ret;
 }
 
@@ -61,15 +110,16 @@ function rewriteMapTypeCache() {
 			}
 		}
 
-		// get the menus and rewrite the cache, one by one
-		$maptypes = $pObject->getMapTypes();
-		// @TODO write data to cache file
-		$gBitSmarty->assign( 'geoserverMaptypes', $maptypes );
+		// get the tilelayers and rewrite the cache
+		$list = array( 'max_records' => 999999 );
+		$tileLayers = geoserverGetTilelayerList($list) );
+		
+		$gBitSmarty->assign( 'geoserverTilelayers', $tileLayers );
 
 	} else {
-		$this->mErrors['chache_rewrite'] = tra( "The cache directory for geoserver doesn't exist." );
+		// $this->mErrors['chache_rewrite'] = tra( "The cache directory for geoserver doesn't exist." );
 	}
-	return( count( $this->mErrors ) == 0 );
+	// return( count( $this->mErrors ) == 0 );
 }
 
 
