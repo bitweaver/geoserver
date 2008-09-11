@@ -28,15 +28,12 @@ foreach( $layers as &$layer ){
 	// regex off the xyz
 	$tileUrl = preg_replace( '/&zoom={Z}&x={X}&y={Y}/', '', $tileUrl );
 
-	// get the styles from which we will make a style key for the maptype
+	// get the styles from which we will make a style key for the tilelayer
+	$keyRows = array();
+
 	$styleXML = geoserverGetXML( $styleUrl );
 
-	// make maptype key html (maptype description)
 	$rules = $styleXML->getElementsByTagName( 'Rule' );
-
-	$key_data = array();
-	
-	$keyHTML = "<div class='tilelayer_key'>";
 
 	foreach( $rules as &$rule ){
 		$color = null;
@@ -52,12 +49,12 @@ foreach( $layers as &$layer ){
 				}
 			}
 		}
-
-		$keyHTML .= "<div class='tilelayer_key_row'><div class='tilelayer_key_color' style='background-color:".$color.";'></div>&nbsp;".$range."</div>";
+		
+		$keyRows[] = array( 'color' => $color, 'range' => $range );
 	}
 
-	$keyHTML .= "</div>";
-	// end - make maptype key html
+	$gBitSmarty->assign( 'keyRows', $keyRows );
+	// end get styles 
 
 	// prep tilelayer
 	$tilelayerData = array(
@@ -74,11 +71,12 @@ foreach( $layers as &$layer ){
 
 	// store tilelayer		
 	if( $tilelayer = $gContent->storeTilelayer( $tilelayerData ) ){
-		$rslts[] = 'Tile layer "'.$title.'" stored';
-
 		// store the tilelayer key html
-		$tilelayer['datakey'] = $keyHTML;
+		$gBitSmarty->assign( 'tilelayer', $tilelayer );
+		$tilelayer['datakey'] = $gBitSmarty->fetch( GEOSERVER_PKG_PATH.'templates/tilelayer_key.tpl' );
 		geoserverStoreTilelayerMetaData( $tilelayer );
+
+		$rslts[] = 'Tile layer "'.$title.'" stored';
 	}else{
 		$rslts[] = 'Tile layer "'.$title.'" storage FAILED!';
 	}
@@ -86,11 +84,14 @@ foreach( $layers as &$layer ){
 	// store data key html for tile layer
 }
 
+// cache various tpls 
+geoserverRewriteTilelayerCache();
+
+// report storage results
 $centerContent = '';
 foreach( $rslts as $rslt ){
 	$centerContent .= "<p>".$rslt."</p>";
 }
-
 $gBitSmarty->assign( 'centerContent', $centerContent );
 
 $gBitSystem->display( 'bitpackage:geoserver/csv_tilelayers_import.tpl', tra( 'Import Tilelayers' ), array( 'display_mode' => 'admin' ));

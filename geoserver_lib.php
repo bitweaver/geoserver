@@ -96,13 +96,17 @@ function geoserverStoreTilelayerMetaData( &$pParamHash ){
 	return $ret;
 }
 
-function rewriteMapTypeCache() {
+function geoserverRewriteTilelayerCache() {
+	global $gBitSmarty;
+
+	$path = TEMP_PKG_PATH.GEOSERVER_PKG_NAME.'/templates';
+
 	// if the cache folder doesn't exist yet, create it
-	if( !is_dir( TEMP_PKG_PATH.GEOSERVER_PKG_NAME.'/templates' ) ) {
-		mkdir_p( TEMP_PKG_PATH.GEOSERVER_PKG_NAME.'/templates' );
+	if( !is_dir( $path ) ) {
+		mkdir_p( $path );
 	}
 
-	if( is_dir( $path = TEMP_PKG_PATH.GEOSERVER_PKG_NAME.'/templates' ) ) {
+	if( is_dir( $path ) ) {
 		$handle = opendir( $path );
 		while( false!== ( $cache_file = readdir( $handle ) ) ) {
 			if( $cache_file != "." && $cache_file != ".." ) {
@@ -112,9 +116,25 @@ function rewriteMapTypeCache() {
 
 		// get the tilelayers and rewrite the cache
 		$list = array( 'max_records' => 999999 );
-		$tileLayers = geoserverGetTilelayerList($list) );
+		$tilelayers = geoserverGetTilelayerList( $list );
 		
-		$gBitSmarty->assign( 'geoserverTilelayers', $tileLayers );
+		$gBitSmarty->assign( 'geoserverTilelayers', $tilelayers );
+
+		$cacheTpls = array( 
+			'mapdata.js.tpl' => $gBitSmarty->fetch( GEOSERVER_PKG_PATH.'templates/mapdata.js.tpl' ),
+			'tilelayers_menu_inc.tpl' => $gBitSmarty->fetch( GEOSERVER_PKG_PATH.'templates/tilelayers_menu_inc.tpl' ),
+			'edit_map_inc.tpl' => $gBitSmarty->fetch( GEOSERVER_PKG_PATH.'templates/edit_map_inc.tpl' ),
+		);
+
+		foreach( $cacheTpls as $cacheFile => $cacheString ){
+			$h = fopen( $path.'/'.$cacheFile, 'w' );
+			if( isset( $h ) ) {
+				fwrite( $h, $cacheString );
+				fclose( $h );
+			} else {
+			//	$this->mErrors['write_module_cache'] = tra( "Unable to write to" ).': '.realpath( $cache_file );
+			}
+		}
 
 	} else {
 		// $this->mErrors['chache_rewrite'] = tra( "The cache directory for geoserver doesn't exist." );
@@ -124,13 +144,22 @@ function rewriteMapTypeCache() {
 
 
 /********* SERVICE FUNCTIONS *********/
+/* DEPRECATED SLATED FOR DELETE
 function geoserver_content_display( &$pObject ) {
 	global $gBitSystem, $gBitSmarty, $gBitUser;
 	if ( $gBitSystem->isPackageActive( 'gmap' ) && $gBitSystem->isPackageActive( 'geoserver' ) ) {
 		if( $pObject->getContentType() == 'bitgmap' && $pObject->hasViewPermission() ){
-			// @TODO make sure cache tpl exists or write it
+			// @TODO make sure cache tpls exists or write them
+			if( is_dir( $path = TEMP_PKG_PATH.GEOSERVER_PKG_NAME.'/templates' ) ) {
+				while( false!== ( $cache_file = readdir( $handle ) ) ) {
+					if( $cache_file != "." && $cache_file != ".." ) {
+						unlink( $path.'/'.$cache_file );
+					}
+				}
+			}
 		}
 	}
 }
+*/
 
 ?>
