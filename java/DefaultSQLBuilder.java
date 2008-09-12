@@ -251,6 +251,8 @@ public class DefaultSQLBuilder implements SQLBuilder {
      * @throws SQLEncoderException Not thrown by this method but may be thrown
      *         by the encoder class
      */
+    protected static final java.util.logging.Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.jdbc");
+
     public String buildSQLQuery(String typeName,
             FIDMapper mapper,
             AttributeType[] attrTypes,
