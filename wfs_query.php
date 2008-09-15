@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.1 2008/09/15 22:01:57 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.2 2008/09/15 22:21:26 waterdragon Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -78,9 +78,9 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
 
 
 // Make sure the request isn't empty
-if( empty( $_REQUEST['query'] ) ) {
+if( empty( $_REQUEST['request'] ) ) {
 
-  geoserver_exception('No query specified.');
+  geoserver_exception('No request specified.');
 
 } else {
 
@@ -98,10 +98,10 @@ if( empty( $_REQUEST['query'] ) ) {
 
   $args = $_GET;
   // Remove the query from the arguments
-  unset($args['query']);
+  unset($args['request']);
 
-  switch( $_REQUEST['query'] ) {
-  case 'get_feature':
+  switch( $_REQUEST['request'] ) {
+  case 'GetFeature':
     // Validate we have a type name
     if( empty($args['typename'] ) ) {
       geoserver_exception('No type name specified.');
@@ -109,7 +109,7 @@ if( empty( $_REQUEST['query'] ) ) {
     } elseif( strstr($args['typename'], 'liberty') ) {
       // Validate the namespace
       if( substr($args['typename'], 0, strlen($namespace) + 1) != $namespace.':') {
-	geoserver_exception('Permision denied while trying to query type name: ' . $args['typename']);
+	geoserver_exception('Permision denied while trying to request type name: ' . $args['typename']);
       } else {
 	geoserver_fetch($url, 'GetFeature', $args, 'wfs_liberty_filter.tpl');
       }
@@ -117,13 +117,11 @@ if( empty( $_REQUEST['query'] ) ) {
       geoserver_fetch($url, 'GetFeature', $args);
     }    
     break;
-  case 'describe_feature_type':
-    geoserver_fetch($url, 'DescribeFeatureType');
-    break;
-  case 'get_capabilities':
-    geoserver_fetch($url, 'GetCapabilities');
+  case 'DescribeFeatureType':
+  case 'GetCapabilities':
+    geoserver_fetch($url, $_REQUEST['request']);
     break;
   default:
-    geoserver_exception('Invalid query specified: ' . $_REQUEST['query']);
+    geoserver_exception('Invalid request specified: ' . $_REQUEST['request']);
   }
 }
