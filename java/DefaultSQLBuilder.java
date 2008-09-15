@@ -267,12 +267,16 @@ public class DefaultSQLBuilder implements SQLBuilder {
 
         sqlBuffer.append("SELECT ");
         sqlColumns(sqlBuffer, mapper, attrTypes);
-        sqlFrom(sqlBuffer, typeName);
+        sqlFrom(fromBuffer, typeName);
         encoder.setFIDMapper(mapper);
-        sqlWhere(sqlBuffer, filter);
+        sqlWhere(whereBuffer, filter);
 
 	if (typeName.startsWith("liberty")) {
 	    LOGGER.fine("Hacking for liberty!");
+
+	    LOGGER.fine("SQL: " + sqlBuffer);
+	    LOGGER.fine("FROM: " + fromBuffer);
+	    LOGGER.fine("WHERE: " + whereBuffer);
 	    
 	    java.util.regex.Pattern id;
 	    java.util.regex.Matcher m;
@@ -311,7 +315,7 @@ public class DefaultSQLBuilder implements SQLBuilder {
 	    
 	    
 	    // Extract the group_ids of the user
-	    id = java.util.regex.Pattern.compile("lc\\.\"requesting_users_groups\" *= *((?:-?\\d+(?:, *)?)*)");
+	    id = java.util.regex.Pattern.compile("lc\\.\"requesting_users_groups\" *= *((?:-?\\d+(?:, *)?)+)");
 	    m = id.matcher(whereBuffer);
 	    if (m.find()) {
 		group_ids = whereBuffer.substring(m.start(1),m.end(1));
@@ -333,27 +337,31 @@ public class DefaultSQLBuilder implements SQLBuilder {
 	    
 	    // ADD THE JOINS TO THE QUERY!
 	    // Get the permission name we need to target from here
-	    sqlBuffer.append(" lc LEFT OUTER JOIN liberty_secure_permissions_map lcpm ON " +
+	    fromBuffer.append(" lc LEFT OUTER JOIN liberty_secure_permissions_map lcpm ON " +
 			     "( lcpm.content_type_guid = lc.content_type_guid AND lcpm.perm_type = 'view' )");
 	    // Check if a group is allowed by default
-	    sqlBuffer.append(" LEFT JOIN users_group_permissions ugpgc ON " +
+	    fromBuffer.append(" LEFT JOIN users_group_permissions ugpgc ON " +
 			     "(ugpgc.perm_name = lcpm.perm_name AND ugpgc.group_id IN (");
-	    sqlBuffer.append(group_ids);
-	    sqlBuffer.append(") )");
+	    fromBuffer.append(group_ids);
+	    fromBuffer.append(") )");
 	    
 	    // Check if the permission is granted
-	    sqlBuffer.append(" LEFT OUTER JOIN liberty_content_permissions lcpermgrnt ON " +
+	    fromBuffer.append(" LEFT OUTER JOIN liberty_content_permissions lcpermgrnt ON " +
 			     "(lc.content_id = lcpermgrnt.content_id AND lcpermgrnt.perm_name = lcpm.perm_name AND  lcpermgrnt.group_id IN (");
-	    sqlBuffer.append(group_ids);
-	    sqlBuffer.append(") AND lcpermgrnt.is_revoked IS NULL )");
+	    fromBuffer.append(group_ids);
+	    fromBuffer.append(") AND lcpermgrnt.is_revoked IS NULL )");
 	    
 	    // Make sure the permission hasn't been revoked
-	    sqlBuffer.append(" LEFT OUTER JOIN liberty_content_permissions lcpermrev ON " +
+	    fromBuffer.append(" LEFT OUTER JOIN liberty_content_permissions lcpermrev ON " +
 			     "(lc.content_id = lcpermrev.content_id AND lcpermrev.perm_name = lcpm.perm_name AND lcpermrev.group_id IN (");
-	    sqlBuffer.append(group_ids);
-	    sqlBuffer.append(") AND lcpermrev.is_revoked = 'y' )");
+	    fromBuffer.append(group_ids);
+	    fromBuffer.append(") AND lcpermrev.is_revoked = 'y' )");
 	    
 	    LOGGER.fine("Liberty Hack Complete!");
+
+	    LOGGER.fine("SQL: " + sqlBuffer);
+	    LOGGER.fine("FROM: " + fromBuffer);
+	    LOGGER.fine("WHERE: " + whereBuffer);
 	}
 
 	sqlBuffer.append(fromBuffer);
