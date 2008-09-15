@@ -5,4 +5,5 @@
     RewriteRule ^(.*)$            - [L]
 
     RewriteRule ^wfs$  wfs_query.php  [L,QSA]
+    RewriteRule ^wms$  wms_query.php  [L,QSA]
 </IfModule>

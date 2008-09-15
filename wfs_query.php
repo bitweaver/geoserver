@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.3 2008/09/15 22:34:19 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.4 2008/09/15 22:45:50 waterdragon Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -91,14 +91,6 @@ if( empty( $_REQUEST['request'] ) ) {
   // TODO: Parameterize these in admin
   $url = 'http://localhost:8080/geoserver/wfs';
   $namespace = 'geotest';
-
-  if( empty($_REQUEST['args']) ) {
-    $args = array();
-  } elseif( !is_array($_REQUEST['args']) ) {
-    geoserver_exception('Invalid request. Args must be an array!');
-  } else {
-    $args = $_REQUEST['args'];
-  }
 
   $args = $_GET;
   // Remove the query from the arguments
