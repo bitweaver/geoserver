@@ -3,11 +3,24 @@
  * A straight WMS proxy
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.1 2008/09/15 22:45:50 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.2 2008/09/15 22:50:03 waterdragon Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
 require_once( '../bit_setup_inc.php' );
+
+// TODO: Move to a library
+/**
+ *
+ * Outputs an exception document
+ *
+ * @param string $exception The exception message to send
+ */
+function geoserver_exception($exception) {
+  global $gBitSmarty, $gBitSystem;
+  $gBitSmarty->assign('exception', $exception);
+  $gBitSystem->display('bitpackage:geoserver/wfs_exception.tpl', '', array( 'format' => 'xml'  ));
+}
 
 /**
  *
