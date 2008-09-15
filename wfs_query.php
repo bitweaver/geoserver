@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.2 2008/09/15 22:21:26 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.3 2008/09/15 22:34:19 waterdragon Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -70,6 +70,10 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
   }
 
   curl_close($ch);
+
+  // Trick out any URLs in the result
+  $new_url = 'http://'.$_SERVER['HTTP_HOST'].substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '?'));
+  $result = str_replace($url, $new_url, $result);
 
   $gBitSmarty->assign('result', $result);
   $gBitSystem->display('bitpackage:geoserver/wfs_result.tpl', '', array( 'format' => 'xml' ));
