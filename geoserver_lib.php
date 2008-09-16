@@ -31,16 +31,21 @@ function geoserverGetTilelayer( &$pParamHash ){
 	}else{
 		array_push( $bindVars, $pParamHash['tilelayer_id'] ); 
 		$whereSql .= " gtl.`tilelayer_id` = ? ";
-		$selectSql .= ", gtm.theme_id, gtm.datakey ";
-		$joinSql .= " LEFT JOIN `".BIT_DB_PREFIX."geoserver_tilelayers_meta` gtm ON( gtm.`tilelayer_id` = gtl.`tilelayer_id` ) "; 
 	}
 
-	$query = "SELECT gtl.tilelayer_id $selectSql
+	$selectSql .= ", gtm.theme_id, gtm.datakey ";
+	$joinSql .= " LEFT JOIN `".BIT_DB_PREFIX."geoserver_tilelayers_meta` gtm ON( gtm.`tilelayer_id` = gtl.`tilelayer_id` ) "; 
+
+	$query = "SELECT gtl.* $selectSql
 			FROM `".BIT_DB_PREFIX."gmaps_tilelayers` gtl
 			$joinSql
 			WHERE $whereSql";
 
-	$ret = $gBitSystem->mDb->getOne( $query, $bindVars );
+	$result = $gBitSystem->mDb->query( $query, $bindVars );
+
+	if( $result && $result->numRows() ) {
+		$ret = $result->fields;
+	}
 
 	return $ret;
 }
@@ -55,7 +60,7 @@ function geoserverGetTilelayerList( &$pListHash ){
 	$bindVars = array(); $selectSql = ''; $joinSql = ''; $whereSql = '';
 
 	if( empty( $pListHash['sort_mode'] )) {
-		$pListHash['sort_mode'] = array( 'gtl.`tiles_name_asc`' );
+		// $pListHash['sort_mode'] = array( 'gtl.`tiles_name_asc`' );
 		$pListHash['sort_mode'] = array( 'gtt.`theme_title_asc`', 'gtl.`tiles_name_asc`' );
 	}
 	@LibertyContent::prepGetList( $pListHash );

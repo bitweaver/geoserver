@@ -11,7 +11,10 @@ if( isset( $_REQUEST["batch_submit"] ) ){
 	}else{
 		foreach( $_REQUEST['tilelayers'] as $tilelayer_id => $theme_id ){
 			$storeHash = array( 'tilelayer_id' => $tilelayer_id, 'theme_id' => $theme_id );
-			// @TODO this is a little buggy
+			// if we dont do this the datakey html gets nulled
+			$tilelayer = geoserverGetTilelayer( $storeHash );
+			$storeHash['datakey'] = $tilelayer['datakey'];
+			// update the metadata
 			geoserverStoreTilelayerMetaData( $storeHash );
 		}
 	}
@@ -20,7 +23,7 @@ if( isset( $_REQUEST["batch_submit"] ) ){
 }
 
 // get list of tilelayers
-$_REQUEST['max_records'] = $gBitSystem->getConfig( 'max_records' ) * 5;
+$_REQUEST['max_records'] = '9999';
 $tilelayers = geoserverGetTilelayerList( $_REQUEST );
 $gBitSmarty->assign( 'geoserverTilelayers', $tilelayers );
 

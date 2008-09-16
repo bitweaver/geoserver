@@ -67,13 +67,24 @@ foreach( $layers as &$layer ){
 	);
 
 	// if it already exists we'll update it
-	$tilelayerData['tilelayer_id'] = geoserverGetTilelayer( $tilelayerData );
+	if( $ret = geoserverGetTilelayer( $tilelayerData ) ){
+		$tilelayerData['tilelayer_id'] = $ret['tilelayer_id'];
+	}
 
 	// store tilelayer		
 	if( $tilelayer = $gContent->storeTilelayer( $tilelayerData ) ){
 		// store the tilelayer key html
 		$gBitSmarty->assign( 'tilelayer', $tilelayer );
+		
+		// get its datakey legend html block
 		$tilelayer['datakey'] = $gBitSmarty->fetch( GEOSERVER_PKG_PATH.'templates/tilelayer_key.tpl' );
+		
+		// if it already has been themed we preserve its theme mapping
+		if( !empty( $ret['theme_id'] ) ){
+			$tilelayer['theme_id'] = $ret['theme_id'];
+		}
+
+		// store the tilelayer meta data
 		geoserverStoreTilelayerMetaData( $tilelayer );
 
 		$rslts[] = 'Tile layer "'.$title.'" stored';
