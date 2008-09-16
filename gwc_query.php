@@ -1,10 +1,10 @@
 <?php
 /**
- * A straight WMS proxy
+ * A straight GWC proxy
  *
- * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.4 2008/09/16 18:58:24 waterdragon Exp $
- * @author   spider <nick@sluggardy.net>
+ * @package  gwc
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/gwc_query.php,v 1.1 2008/09/16 18:58:24 waterdragon Exp $
+ * @author   nick <nick@sluggardy.net>
  */
 
 require_once( '../bit_setup_inc.php' );
@@ -16,63 +16,54 @@ require_once( '../bit_setup_inc.php' );
  *
  * @param string $exception The exception message to send
  */
-function geoserver_exception($exception) {
+function gwc_exception($exception) {
   global $gBitSmarty, $gBitSystem;
   $gBitSmarty->assign('exception', $exception);
-  $gBitSystem->display('bitpackage:geoserver/wfs_exception.tpl', '', array( 'format' => 'xml'  ));
+  $gBitSystem->fatalError($exception);
 }
 
 /**
  *
- * Makes a wfs request to the specified geoserver and outputs the document returned
-v *
+ * Makes a wfs request to the specified gwc and outputs the document returned
+ *
  * @param string $url The url to send the request to
  * @param string $args Additional parameters to send along in the post (if any)
  */
-function geoserver_fetch($url, $args = NULL) {
+function gwc_fetch($url, $args = NULL) {
   global $gBitSystem, $gBitSmarty;
 
+  $query = '?';
   $query_url = $url;
-
-  $post = '';
   if( !empty( $args ) ) {
     foreach ($args as $arg => $val) {
-      if (strtolower($arg) == 'wms_path') {
+      if( $arg == 'file' ) {
 	$query_url .= $val;
-      }
-      else {
-	$post .= '&'.$arg.'='.$val;
+      } else {
+	$query .= '&'.$arg.'='.$val;
       }
     }
   }
 
-  if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-    $query_url .= '?'.$post;
+  if( $query != '?' ) {
+    $query_url .= $query;
   }
-  
+
+  //  vd($query_url);
+  //  die;
   // create a new cURL resource
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $query_url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, false);
-  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-  }
   $result = curl_exec($ch);
 
   if( !$result ) {
-    geoserver_exception(curl_error($ch));
+    gwc_exception(curl_error($ch));
   }
 
   $header = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
   if( !empty($header) ) {
-    // Hack for geoserver stupidity.
-    if (strstr($header, 'xml')) {
-	header('Content-Type: application/xml');
-    } else {
-      header('Content-Type: ' . $header);
-    }
+    header('Content-Type: ' . $header);
   }
 
   curl_close($ch);
@@ -83,11 +74,11 @@ function geoserver_fetch($url, $args = NULL) {
   echo $result;
 }
 
-$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'wms';
+$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'gwc';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $args = $_POST;
-} else {
-    $args = $_GET;
+ } else {
+  $args = $_GET;
 }
-geoserver_fetch($url, $args);
+gwc_fetch($url, $args);
