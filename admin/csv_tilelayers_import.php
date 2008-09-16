@@ -67,7 +67,7 @@ foreach( $layers as &$layer ){
 	);
 
 	// if it already exists we'll update it
-	$tilelayerData['tilelayer_id'] = geoserverGetTilelayerByName( $tilelayerData );
+	$tilelayerData['tilelayer_id'] = geoserverGetTilelayer( $tilelayerData );
 
 	// store tilelayer		
 	if( $tilelayer = $gContent->storeTilelayer( $tilelayerData ) ){

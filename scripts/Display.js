@@ -3,7 +3,33 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 
 	"geoserverTilelayerId":-1,
 
-	"setTilelayer": function(tid){
+	"geoserverGetTilelayer": function(tid){
+		doSimpleXMLHttpRequest(BitSystem.urls.geoserver+"view_tilelayers_inc.php", {tilelayer_id:tid}).addCallback( bind(this.geoserverTilelayerCallback, this), tid );
+	},
+
+	"geoserverTilelayerCallback": function(tid,rslt){
+	    var xml = rslt.responseXML.documentElement;
+		var t = BitMap.Geoserver.tilelayers[tid] = {};
+		this.parseTilelayerXML(t, xml);
+
+/*
+		// convenience
+		var $s = partial( bind(this.getXMLTagValue, this), xml );
+		var $i = function( s ){ return parseInt( $s( s ) )};
+		var $f = function( s ){ return parseFloat( $s( s ) )};
+
+		// assign iconsstyle values to data array
+		t.tilelayer_id = $i('tilelayer_id');
+        t.tiles_name = $s('tiles_name');
+        t.tiles_minzoom = $i('tiles_minzoom');
+        t.tiles_maxzoom = $i('tiles_maxzoom');
+        t.ispng = $s('ispng');
+        t.tilesurl = $s('tilesurl');
+        t.opacity = $f('opacity');
+		*/
+	},
+
+	"geoserverSetTilelayer": function(tid){
 		// change
 		if( tid != this.geoserverTilelayerId ){
 			// remove

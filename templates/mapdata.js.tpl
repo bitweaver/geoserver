@@ -3,6 +3,7 @@
 {literal}
 BitMap.Geoserver = {'tilelayers':{
 {/literal}
+{*
 {foreach from=$geoserverTilelayers key=id item=layer}
 	'{$layer.tilelayer_id}':
 	{ldelim}
@@ -16,6 +17,7 @@ BitMap.Geoserver = {'tilelayers':{
 	{rdelim},
 {/foreach}
 {literal}
+*}
 }};
 {/literal}
 </script>
