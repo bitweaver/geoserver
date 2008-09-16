@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.4 2008/09/15 22:45:50 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.5 2008/09/16 16:35:11 waterdragon Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -38,6 +38,8 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
 
   $post .= '&OUTPUTFORMAT='.$format;
 
+  $query_url = $url;
+
   if( !empty( $args ) ) {
     foreach ($args as $arg => $val) {
       if ($filter && strtolower($arg) == 'bbox') {
@@ -45,6 +47,8 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
       } elseif ($filter && strtolower($arg) == 'filter') {
 	$f = preg_replace('/<\/?filter\s*>/i','',$val);
 	$gBitSmarty->assign('filter', $f);
+      } elseif (strtolower($arg) == 'wfs_path') {
+	$query_url .= $val;
       } else {
 	$post .= '&'.$arg.'='.$val;
       }
@@ -55,29 +59,38 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
   if( $filter ) {
     $post .= "&FILTER=".$gBitSmarty->fetch('bitpackage:geoserver/'.$filter);
   }
+
+  if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+    $query_url .= '?'.$post;
+  }
   
   // create a new cURL resource
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_URL, $query_url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, false);
-  curl_setopt($ch, CURLOPT_POST, true);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+  }
   $result = curl_exec($ch);
 
   if( !$result ) {
     geoserver_exception(curl_error($ch));
   }
 
+  $header = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+  if( !empty($header) ) {
+    header('Content-Type: ' . $header);
+  }
+
   curl_close($ch);
 
   // Trick out any URLs in the result
-  $new_url = 'http://'.$_SERVER['HTTP_HOST'].substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '?'));
+  $new_url = GEOSERVER_PKG_URI.'wfs';
   $result = str_replace($url, $new_url, $result);
 
-  $gBitSmarty->assign('result', $result);
-  $gBitSystem->display('bitpackage:geoserver/wfs_result.tpl', '', array( 'format' => 'xml' ));
-
+  echo $result;
 }
 
 
@@ -87,10 +100,9 @@ if( empty( $_REQUEST['request'] ) ) {
   geoserver_exception('No request specified.');
 
 } else {
-
-  // TODO: Parameterize these in admin
-  $url = 'http://localhost:8080/geoserver/wfs';
-  $namespace = 'geotest';
+  
+  $url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'wfs';
+  $namespace = $gBitSystem->getConfig('geoserver_namespace', 'geotest');
 
   $args = $_GET;
   // Remove the query from the arguments
