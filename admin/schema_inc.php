@@ -4,7 +4,7 @@ $tables = array(
 		tilelayer_id I4 NOTNULL,
 		theme_id I4,
 		datakey X
-			CONSTRAINT ', CONSTRAINT `geoserver_tl_meta_ref` FOREIGN KEY (`tilelayer_id`) REFERENCES `".BIT_DB_PREFIX."gmap_tilelayers`( `tilelayer_id` )'
+			CONSTRAINT ', CONSTRAINT `geoserver_tl_meta_ref` FOREIGN KEY (`tilelayer_id`) REFERENCES `".BIT_DB_PREFIX."gmaps_tilelayers`( `tilelayer_id` )'
 	",
 
 	'geoserver_tilelayers_themes' => "
