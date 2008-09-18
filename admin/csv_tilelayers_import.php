@@ -9,11 +9,8 @@ $gContent = new BitGmap();
 // user must be gmap admin
 $gBitSystem->verifyPermission('p_gmap_admin');
 
-// get geoserver data path
-// $gsStylesDir = $gBitSystem->getConfig( 'geoserver_data_path' ).'styles/';
-
 // url to graphserver
-$tileLayersUrl = 'http://www.tekimaki.com/geoserver/rest/csv/tileLayers';
+$tileLayersUrl = BIT_BASE_URI.GEOSERVER_PKG_URL.'rest/csv/tileLayers';
 
 // get tileLayers XML that has everything we need
 $tileLayersXML = geoserverGetXML( $tileLayersUrl );

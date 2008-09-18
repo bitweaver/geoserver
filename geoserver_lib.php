@@ -20,6 +20,8 @@ function geoserverGetXML( $pPath ){
 function geoserverGetTilelayer( &$pParamHash ){
 	global $gBitSystem;
 
+	$ret = NULL;
+
 	$bindVars = array(); $selectSql = ''; $joinSql = ''; $whereSql = '';
 
 	// if a name is passed in we look up the tilelayer by name
@@ -69,14 +71,20 @@ function geoserverGetTilelayerList( &$pListHash ){
 				." LEFT JOIN `".BIT_DB_PREFIX."geoserver_tilelayers_themes` gtt ON( gtt.`theme_id` = gtm.`theme_id` ) ";
 	$selectSql .= ", gtm.*, gtt.theme_title";
 
+	if( @BitBase::verifyId( $pListHash['theme_id'] )) {
+		$whereSql = " WHERE gtm.`theme_id` = ? ";
+		$bindVars[] = $pListHash['theme_id'];
+	}
+
 	$sql = "SELECT gtl.* $selectSql
 			FROM `".BIT_DB_PREFIX."gmaps_tilelayers` gtl $joinSql
+			$whereSql
 			ORDER BY ".$gBitSystem->mDb->convertSortmode( $pListHash['sort_mode'] );
 
 	$result = $gBitSystem->mDb->query( $sql, $bindVars, $pListHash['max_records'], $pListHash['offset'] );
-
+	
 	while( $aux = $result->fetchRow() ) {
-		$ret[] = $aux;
+		$ret[$aux['tilelayer_id']] = $aux;
 	}
 
 	$pListHash['cant'] = $gBitSystem->mDb->getOne( "SELECT COUNT( gtl.`tilelayer_id` ) FROM `".BIT_DB_PREFIX."gmaps_tilelayers` gtl $joinSql $whereSql", $bindVars );
@@ -259,8 +267,9 @@ function geoserver_content_gettilelayers( &$pObject ) {
 		$tilelayers = geoserverGetTilelayerList( $list );
 		$gBitSmarty->assign( 'geoserverTilelayers', $tilelayers );
 
-		if(	$tilelayerPref = $pObject->getPreference( 'geoserver_tilelayer' ) ){
+		if(	$tilelayerPref = $pObject->getPreference( 'geoserver_tilelayer_id' ) ){
 			$gBitSmarty->assign( 'tilelayerPref', $tilelayerPref );
+			$gBitSmarty->assign( 'tilelayerPrefName', $tilelayers[$tilelayerPref]['tiles_name'] );
 		}
 	}
 }
@@ -268,7 +277,7 @@ function geoserver_content_gettilelayers( &$pObject ) {
 function geoserver_content_store( &$pObject ) {
 	global $gBitSystem, $gBitSmarty, $gBitUser;
 	if ( $gBitSystem->isPackageActive( 'gmap' ) && $gBitSystem->isPackageActive( 'geoserver' ) && $pObject->getContentType() == 'bitgmap' && $pObject->hasEditPermission() ){
-		$pObject->storePreference( 'geoserver_tilelayer', !empty( $_REQUEST['geoserver_tilelayer'] ) ? $_REQUEST['geoserver_tilelayer'] : NULL );
+		$pObject->storePreference( 'geoserver_tilelayer_id', !empty( $_REQUEST['geoserver_tilelayer_id'] ) ? $_REQUEST['geoserver_tilelayer_id'] : NULL );
 	}
 }
 

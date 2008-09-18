@@ -30,11 +30,11 @@
 						<th>{tr}Actions{/tr}</th>
 					</tr>
 					{cycle values="even,odd" print=false}
-					{foreach from=$geoserverTilelayers key=id item=layer}
+					{foreach from=$geoserverTilelayers key=tlid item=layer}
 					<tr class="{cycle}">
 						<td>{$layer.tiles_name}</td>
 						<td>
-							<select name="tilelayers[{$layer.tilelayer_id}]" >
+							<select name="tilelayers[{$tlid}]" >
 							{foreach from=$geoserverTilelayerThemes key=id item=theme}
 								<option value="{$id}" {if $layer.theme_id == $id}selected="selected"{/if}>{$theme}</option>
 							{foreachelse}
