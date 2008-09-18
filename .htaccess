@@ -7,6 +7,6 @@
     RewriteRule ^wfs(.*)$  wfs_query.php?wfs_path=$1  [L,QSA]
     RewriteRule ^wms(.*)$  wms_query.php?wms_path=$1  [L,QSA]
     RewriteRule ^rest(.*)$ rest_query.php?rest_path=$1 [L,QSA]
-    RewriteRule ^www(.*)$ www_query.php?file=$1 [L,QSA]
     RewriteRule ^gwc(.*)$ gwc_query.php?file=$1 [L,QSA]
+    RewriteRule ^(.*)$ www_query.php?file=$1 [L,QSA]
 </IfModule>

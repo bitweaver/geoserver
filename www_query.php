@@ -3,7 +3,7 @@
  * A straight WWW proxy
  *
  * @package  www
- * @version  $Header: /home/cvs/bwpkgs/geoserver/www_query.php,v 1.1 2008/09/16 18:58:24 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/www_query.php,v 1.2 2008/09/18 17:14:50 waterdragon Exp $
  * @author   nick <nick@sluggardy.net>
  */
 
@@ -36,7 +36,7 @@ function www_fetch($url, $args = NULL) {
   $query_url = $url;
   if( !empty( $args ) ) {
     foreach ($args as $arg => $val) {
-      if( $arg == 'www_path' ) {
+      if( $arg == 'file' ) {
 	$query_url .= $val;
       } else {
 	$query .= '&'.$arg.'='.$val;
@@ -54,7 +54,7 @@ function www_fetch($url, $args = NULL) {
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HEADER, false);
   $result = curl_exec($ch);
-
+  
   if( !$result ) {
     www_exception(curl_error($ch));
   }
@@ -62,6 +62,9 @@ function www_fetch($url, $args = NULL) {
   $header = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
   if( !empty($header) ) {
     header('Content-Type: ' . $header);
+  }
+  else {
+    header('Content-Type: application/xml');
   }
 
   curl_close($ch);
@@ -73,10 +76,11 @@ function www_fetch($url, $args = NULL) {
   echo $result;
 }
 
-$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'www';
+$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/');
 
 global $gBitUser, $gBitSystem;
-if( !$gBitUser->isAdmin() ) {
+$file = $_REQUEST['file'];
+if( !empty($file) && substr($file, 0, 3) == 'www' && !$gBitUser->isAdmin() ) {
   $gBitSystem->fatalError("You must be logged in to use this interface.");
 } else {
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
