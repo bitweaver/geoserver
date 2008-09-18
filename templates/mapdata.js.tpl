@@ -1,5 +1,5 @@
 <script type="text/javascript">
 {literal}
-BitMap.Geoserver = {'tilelayers':{}};
+BitMap.Geoserver = {'tilelayers':{}, "shapes":{}};
 {/literal}
 </script>
