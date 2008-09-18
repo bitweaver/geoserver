@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.6 2008/09/16 18:58:24 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.7 2008/09/18 16:41:29 waterdragon Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -57,8 +57,10 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
 
   // Get the filter to post
   if( $filter ) {
-    $post .= "&FILTER=".$gBitSmarty->fetch('bitpackage:geoserver/'.$filter);
+    $post .= "&FILTER=".urlencode($gBitSmarty->fetch('bitpackage:geoserver/'.$filter));
   }
+
+
 
   if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     $query_url .= '?'.$post;
