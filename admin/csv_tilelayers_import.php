@@ -7,7 +7,7 @@ require_once( GMAP_PKG_PATH.'BitGmap.php' );
 $gContent = new BitGmap();
 
 // user must be gmap admin
-$gBitSystem->verifyPermission('p_gmap_admin');
+$gContent->verifyAdminPermission();
 
 // url to graphserver
 $tileLayersUrl = BIT_BASE_URI.GEOSERVER_PKG_URL.'rest/csv/tileLayers';
