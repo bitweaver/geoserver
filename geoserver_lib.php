@@ -276,7 +276,7 @@ function geoserver_content_gettilelayers( &$pObject ) {
 
 function geoserver_content_store( &$pObject ) {
 	global $gBitSystem, $gBitSmarty, $gBitUser;
-	if ( $gBitSystem->isPackageActive( 'gmap' ) && $gBitSystem->isPackageActive( 'geoserver' ) && $pObject->getContentType() == 'bitgmap' && $pObject->hasEditPermission() ){
+	if ( $gBitSystem->isPackageActive( 'gmap' ) && $gBitSystem->isPackageActive( 'geoserver' ) && $pObject->getContentType() == 'bitgmap' && $pObject->hasUpdatePermission() ){
 		$pObject->storePreference( 'geoserver_tilelayer_id', !empty( $_REQUEST['geoserver_tilelayer_id'] ) ? $_REQUEST['geoserver_tilelayer_id'] : NULL );
 	}
 }
