@@ -1,4 +1,5 @@
 {strip}
+{if $geoserverTilelayers}
 <div id="tilelayers_menu">
 {form action="javascript:;" enctype="multipart/form-data" id=geoserver}
 	<ul id="nav" class="menu hor">
@@ -30,6 +31,7 @@
 		{/foreach}
 	</ul>
 {/form}
+{/if}
 
 {*
 {form action="javascript:;" enctype="multipart/form-data" id=geoserver}
