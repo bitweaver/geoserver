@@ -1,4 +1,5 @@
 {strip}
+{* ENABLE WHEN GEOSERVER IS WORKING 
 <div class="row">
 	{formlabel label="Data Layer" for="geoserver_tilelayer_id"}
 	{forminput}
@@ -9,4 +10,5 @@
 		<input name="geoserver_tilelayer_id" id="geoserver_tilelayer_id" type="hidden" value="{$tilelayerPref}" />
 	{/forminput}
 </div>
+*}
 {/strip}
