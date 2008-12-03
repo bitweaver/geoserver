@@ -31,7 +31,6 @@
 		{/foreach}
 	</ul>
 {/form}
-{/if}
 
 {*
 {form action="javascript:;" enctype="multipart/form-data" id=geoserver}
@@ -48,4 +47,5 @@
 {/form}
 *}
 </div>
+{/if}
 {/strip}
