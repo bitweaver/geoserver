@@ -5,8 +5,8 @@
     RewriteRule ^(.*)$            - [L]
 
     RewriteRule ^wfs(.*)$  wfs_query.php?wfs_path=$1  [L,QSA]
-    RewriteRule ^wms(.*)$  wms_query.php?wms_path=$1  [L,QSA]
+    RewriteRule ^wms(.*)$  http://localhost:8080/geoserver/wms$1 [P,QSA]
     RewriteRule ^rest(.*)$ rest_query.php?rest_path=$1 [L,QSA]
-    RewriteRule ^gwc(.*)$ gwc_query.php?file=$1 [L,QSA]
+    RewriteRule ^gwc(.*)$ http://localhost:8080/geoserver/gwc$1 [P,QSA]
     RewriteRule ^(.*)$ www_query.php?file=$1 [L,QSA]
 </IfModule>

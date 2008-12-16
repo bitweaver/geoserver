@@ -3,7 +3,7 @@
  * A straight REST proxy
  *
  * @package  rest
- * @version  $Header: /home/cvs/bwpkgs/geoserver/rest_query.php,v 1.2 2008/09/16 18:58:24 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/rest_query.php,v 1.3 2008/12/16 19:00:46 tekimaki Exp $
  * @author   nick <nick@sluggardy.net>
  */
 
@@ -17,6 +17,7 @@ require_once( '../bit_setup_inc.php' );
  * @param string $exception The exception message to send
  */
 function rest_exception($exception) {
+  require_once( '../bit_setup_inc.php' );
   global $gBitSmarty, $gBitSystem;
   $gBitSmarty->assign('exception', $exception);
   $gBitSystem->fatalError($exception);
@@ -67,12 +68,16 @@ function rest_fetch($url, $args = NULL) {
   curl_close($ch);
 
   // Trick out any URLs in the result
-  $result = str_replace($gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/'), GEOSERVER_PKG_URI, $result);
+  $result = str_replace( 'http://localhost:8080/geoserver/', '/geoserver/', $result);
 
   echo $result;
 }
 
-$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'rest';
+$url = 'http://localhost:8080/geoserver/rest';
+
+if( !$gBitUser->isAdmin() ) {
+  $gBitSystem->fatalError("You must be logged in to use this interface.");
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $args = $_POST;

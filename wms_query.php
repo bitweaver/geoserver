@@ -3,11 +3,9 @@
  * A straight WMS proxy
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.4 2008/09/16 18:58:24 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.5 2008/12/16 19:00:46 tekimaki Exp $
  * @author   spider <nick@sluggardy.net>
  */
-
-require_once( '../bit_setup_inc.php' );
 
 // TODO: Move to a library
 /**
@@ -17,6 +15,8 @@ require_once( '../bit_setup_inc.php' );
  * @param string $exception The exception message to send
  */
 function geoserver_exception($exception) {
+  require_once( '../bit_setup_inc.php' );
+
   global $gBitSmarty, $gBitSystem;
   $gBitSmarty->assign('exception', $exception);
   $gBitSystem->display('bitpackage:geoserver/wfs_exception.tpl', '', array( 'format' => 'xml'  ));
@@ -30,8 +30,6 @@ v *
  * @param string $args Additional parameters to send along in the post (if any)
  */
 function geoserver_fetch($url, $args = NULL) {
-  global $gBitSystem, $gBitSmarty;
-
   $query_url = $url;
 
   $post = '';
@@ -78,12 +76,12 @@ function geoserver_fetch($url, $args = NULL) {
   curl_close($ch);
 
   // Trick out any URLs in the result
-  $result = str_replace($gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/'), GEOSERVER_PKG_URI, $result);
+  $result = str_replace('http://localhost:8080/geoserver/', '/geoserver/', $result);
 
   echo $result;
 }
 
-$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'wms';
+$url = 'http://localhost:8080/geoserver/wms';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $args = $_POST;
