@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.7 2008/09/18 16:41:29 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.8 2008/12/16 22:53:45 tekimaki Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -103,7 +103,7 @@ if( empty( $_REQUEST['request'] ) ) {
 } else {
   
   $url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'wfs';
-  $namespace = $gBitSystem->getConfig('geoserver_namespace', 'geotest');
+  $namespace = $gBitSystem->getConfig('geoserver_namespace', 'map4change');
 
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $args = $_POST;
@@ -122,8 +122,8 @@ if( empty( $_REQUEST['request'] ) ) {
 
     } elseif( strstr($args['typename'], 'liberty') ) {
       // Validate the namespace
-      if( substr($args['typename'], 0, strlen($namespace) + 1) != $namespace.':') {
-	geoserver_exception('Permision denied while trying to request type name: ' . $args['typename']);
+      if( $args['typename'] != 'liberty' && substr($args['typename'], 0, strlen($namespace) + 1) != $namespace.':') {
+	geoserver_exception('Permision denied while trying to request type name: "' . $args['typename'] . '" namespace:' . $namespace);
       } else {
 	geoserver_fetch($url, 'GetFeature', $args, 'wfs_liberty_filter.tpl');
       }
