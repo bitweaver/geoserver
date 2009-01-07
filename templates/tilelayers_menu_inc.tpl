@@ -17,16 +17,15 @@
 				<li>
 					<a class="head" href="#">{$layer.theme_title}</a>
 					<ul>
-			{else}
+			{/if}
 						<li>
 							<a class="item" href="javascript:void(0);" onclick="BitMap.MapData[0].Map.geoserverSetTilelayer( parseInt( {$tlid}) );">
 								{$layer.tiles_name}
 							</a>
 						</li>
-				{if $smarty.foreach.tilelayers_menu.last}
+			{if $smarty.foreach.tilelayers_menu.last}
 					</ul>
 				</li>
-				{/if}
 			{/if}
 		{/foreach}
 	</ul>
