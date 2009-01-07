@@ -9,6 +9,9 @@ function geoserverGetXML( $pPath ){
 	curl_setopt($ch, CURLOPT_URL, $pPath);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HEADER, false);
+	global $user_cookie_site;
+	$strCookie = $user_cookie_site . '=' . $_COOKIE[$user_cookie_site] . '; path=/';
+	curl_setopt($ch, CURLOPT_COOKIE, $strCookie);
 	$xmlFile = curl_exec($ch);
 	curl_close($ch);
 
