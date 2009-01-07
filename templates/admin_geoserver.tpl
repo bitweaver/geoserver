@@ -18,7 +18,7 @@
 	{/jstab}
 	{jstab title="Tilelayers"}
 		{legend legend="Import/Update Tile Layers"}
-			<a href="{$smarty.const.GEOSERVER_PKG_URL}admin/csv_tilelayers_import.php">Import CSV Tile Layers</a>
+			<a href="{$smarty.const.GEOSERVER_PKG_URL}admin/csv_tilelayers_import.php">Import CSV Tile Layers to CMS</a>
 		{/legend}
 		{form}
 			<input type="hidden" name="page" value="{$page}" />
@@ -81,6 +81,14 @@
 			<input type="submit" name="themes_submit" value="{tr}Submit{/tr}" />
 		</div>
 		{/form}
+	{/jstab}
+	{jstab title="Data Uploader"}
+		{legend legend="CSV Data Uploader an Styler"}
+			<a href="{$smarty.const.GEOSERVER_PKG_URL}admin/csvstyler/index.php">Import CSV Data to Geoserver</a>
+		<p>
+			The CSV Data uploader is for uploading California Zip Code based data sets to Geoserver. Geoserver creates map tiles from the dataset. The import tool also allows one to colorize the layers. You should be versed in how the CSV Data Styling tool works, familiar with Geoserver Web Cache, and Geoserver in general before attempting to use this tool. 
+		</p>
+		{/legend}
 	{/jstab}
 {/jstabs}
 {/strip}
