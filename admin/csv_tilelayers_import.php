@@ -58,6 +58,14 @@ foreach( $layers as $layer ){
 				}
 			}
 			
+			/* prep data
+			 * we regex the key because the client doesnt like what is recieved from geoserver. 
+			 * the results don't make sense, but its what they asked for
+			 * remove '>' and replace 'AND <=' with 'to'
+			 */
+			$range = preg_replace( '/ > /', '', $range );
+			$range = preg_replace( '/AND <=/','to',$range);
+
 			$keyRows[] = array( 'color' => $color, 'range' => $range );
 		}
 
