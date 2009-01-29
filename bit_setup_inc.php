@@ -15,6 +15,7 @@ if( $gBitSystem->isPackageActive( 'geoserver' ) ) {
 		'content_display_function' 	=> 'geoserver_content_gettilelayers',
 		'content_edit_function' 	=> 'geoserver_content_gettilelayers',
 		'content_store_function' 	=> 'geoserver_content_store',
+		'content_search_tpl'		=> 'bitpackage:geoserver/search_inc.tpl'
 	) );
 }
 ?>
