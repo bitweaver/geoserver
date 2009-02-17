@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.8 2008/12/16 22:53:45 tekimaki Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.9 2009/02/17 10:56:10 tekimaki Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -31,7 +31,7 @@ function geoserver_exception($exception) {
  * @param string $filter The filter to render and send (if any). This will load wfs_$filter.tpl
  * @param string $format The format desired for the result. Defaults to GML2.
  */
-function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format = 'GML2') {
+function geoserver_fetch($url, $request = "GetFeature", $args = NULL, $filter = FALSE, $format = 'GML2') {
   global $gBitSystem, $gBitSmarty;
 
   $post = 'SERVICE=WFS&VERSION=1.0.0&REQUEST='.$request;
@@ -46,6 +46,7 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
 	$gBitSmarty->assign('bbox', $val);
       } elseif ($filter && strtolower($arg) == 'filter') {
 	$f = preg_replace('/<\/?filter\s*>/i','',$val);
+	$f = html_entity_decode($f);
 	$gBitSmarty->assign('filter', $f);
       } elseif (strtolower($arg) == 'wfs_path') {
 	$query_url .= $val;
@@ -59,8 +60,6 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
   if( $filter ) {
     $post .= "&FILTER=".urlencode($gBitSmarty->fetch('bitpackage:geoserver/'.$filter));
   }
-
-
 
   if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     $query_url .= '?'.$post;
@@ -98,44 +97,42 @@ function geoserver_fetch($url, $request, $args = NULL, $filter = FALSE, $format 
 // Make sure the request isn't empty
 if( empty( $_REQUEST['request'] ) ) {
 
-  geoserver_exception('No request specified.');
+    $_REQUEST['request'] = 'GetFeature';
+}
 
+$url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'wfs';
+$namespace = $gBitSystem->getConfig('geoserver_namespace', 'map4change');
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  $args = $_POST;
 } else {
-  
-  $url = $gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/').'wfs';
-  $namespace = $gBitSystem->getConfig('geoserver_namespace', 'map4change');
+  $args = $_GET;
+}
 
-  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $args = $_POST;
-  } else {
-    $args = $_GET;
-  }
+// Remove the query from the arguments
+unset($args['request']);
 
-  // Remove the query from the arguments
-  unset($args['request']);
+if( empty($args['typename'] ) ) {
+  $args['typename'] = 'liberty';
+}
 
-  switch( $_REQUEST['request'] ) {
-  case 'GetFeature':
-    // Validate we have a type name
-    if( empty($args['typename'] ) ) {
-      geoserver_exception('No type name specified.');
-
-    } elseif( strstr($args['typename'], 'liberty') ) {
-      // Validate the namespace
-      if( $args['typename'] != 'liberty' && substr($args['typename'], 0, strlen($namespace) + 1) != $namespace.':') {
-	geoserver_exception('Permision denied while trying to request type name: "' . $args['typename'] . '" namespace:' . $namespace);
-      } else {
-	geoserver_fetch($url, 'GetFeature', $args, 'wfs_liberty_filter.tpl');
-      }
-    } else {
-      geoserver_fetch($url, 'GetFeature', $args);
-    }    
-    break;
-  case 'DescribeFeatureType':
-  case 'GetCapabilities':
-    geoserver_fetch($url, $_REQUEST['request']);
-    break;
-  default:
-    geoserver_exception('Invalid request specified: ' . $_REQUEST['request']);
-  }
+switch( $_REQUEST['request'] ) {
+ case 'GetFeature':
+   if( strstr($args['typename'], 'liberty') ) {
+     // Validate the namespace
+     if( $args['typename'] != 'liberty' && substr($args['typename'], 0, strlen($namespace) + 1) != $namespace.':') {
+       geoserver_exception('Permision denied while trying to request type name: "' . $args['typename'] . '" namespace:' . $namespace);
+     } else {
+       geoserver_fetch($url, 'GetFeature', $args, 'wfs_liberty_filter.tpl');
+     }
+   } else {
+     geoserver_fetch($url, 'GetFeature', $args);
+   }    
+   break;
+ case 'DescribeFeatureType':
+ case 'GetCapabilities':
+   geoserver_fetch($url, $_REQUEST['request']);
+   break;
+ default:
+   geoserver_exception('Invalid request specified: ' . $_REQUEST['request']);
 }
