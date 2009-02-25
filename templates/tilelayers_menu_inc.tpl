@@ -4,7 +4,7 @@
 {form action="javascript:;" enctype="multipart/form-data" id=geoserver}
 	<ul id="nav" class="menu hor">
 		<li class="m-home">
-			<a class="head" href="#">Data Layers :</a>
+			<a class="head" href="#">Data Layers:</a>
 		</li>
 		{assign var=layerTheme value="NULL"}
 		{foreach from=$geoserverTilelayers key=tlid item=layer name=tilelayers_menu}
@@ -28,6 +28,9 @@
 				</li>
 			{/if}
 		{/foreach}
+		<li style="float:right; border:none; line-height:1em; padding:.4em .25em 0em .25em; background:white !important;">
+			<a id="tilelayers_hide_btn" style="{if !$tilelayerPref}display:none;{/if}line-height:1em; padding:0; background:white !important;" href="javascript:void(0)" onclick='BitMap.MapData[0].Map.geoserverSetTilelayer(-1)' title="Hide Data Layer"/><img style="border:none;" src="{$smarty.const.THEMES_STYLE_URL}images/close-grey.gif" /></a>
+		</li>
 	</ul>
 {/form}
 

@@ -59,7 +59,6 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 				// implement the three abstract methods   		
 				var t = BitMap.Geoserver.tilelayers[tid];
 
-
 				if( t == undefined ){
 					this.geoserverGetTilelayer(tid, bind(this.geoserverSetTilelayer, this));
 					return;
@@ -82,8 +81,11 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 				this.map.addControl( t.keycontrol );
 
 				this.map.addOverlay( this.geoserverTilelayer );
+
+				BitBase.setElementDisplay( 'tilelayers_hide_btn','inline' );
 			}else{
 				this.geoserverTilelayer = null;
+				BitBase.setElementDisplay( 'tilelayers_hide_btn','none' );
 			}
 			this.geoserverTilelayerId = tid;
 		}
