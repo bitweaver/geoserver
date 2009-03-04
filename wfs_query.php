@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.9 2009/02/17 10:56:10 tekimaki Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.10 2009/03/04 22:00:44 tekimaki Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -45,13 +45,16 @@ function geoserver_fetch($url, $request = "GetFeature", $args = NULL, $filter = 
       if ($filter && strtolower($arg) == 'bbox') {
 	$gBitSmarty->assign('bbox', $val);
       } elseif ($filter && strtolower($arg) == 'filter') {
+	$val = html_entity_decode($val);
 	$f = preg_replace('/<\/?filter\s*>/i','',$val);
 	$f = html_entity_decode($f);
 	$gBitSmarty->assign('filter', $f);
       } elseif (strtolower($arg) == 'wfs_path') {
 	$query_url .= $val;
+      } elseif (strtolower($arg) == 'offset') {
+	$gBitSmarty->assign('offset', $val);
       } else {
-	$post .= '&'.$arg.'='.$val;
+	$post .= '&'.$arg.'='.html_entity_decode($val);
       }
     }
   }

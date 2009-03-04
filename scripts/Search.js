@@ -1,4 +1,5 @@
 MochiKit.Base.update(BitMap.Map.prototype, {
+	"zipcodes":{},
 	"wfsGetFeaturePath":BitSystem.urls.geoserver + "wfs?request=GetFeature",
 	
 	"getFeatureByTypeName": function(pHash){
@@ -35,6 +36,15 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 
 			// add the shape to the map
 			this.mapFeatureShape( hash );
+
+			// if we only have one zoom in on it
+			if( count == 1 ){
+				shape = shapes[data.id];
+				this.centerMapOnPoly( shape.polygon );
+				shape.polygon.hide();
+				shape.polygon.overgon.show();
+				this.map.addOverlay(shape.label);
+			}
 		}
 	},
 
@@ -53,6 +63,7 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 	"defineFeaturePolygon": function( shape ){
 		var ref = this;
 		var pointlist = [];
+		var pointsstring = "";
 		var coords = shape.coordinates;
 		var count = shape.coordinates.length;
 		for ( var n=0; n<count; n++ ){
@@ -62,7 +73,9 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 				parseFloat(coord[0])
 			);
 			pointlist.push(point);
+			pointsstring += coord[1] + "," + coord[0] + " ";
 		}
+		this.zipcodes[shape.name] = pointsstring;
 		shape.polygon = new GPolygon(pointlist,"#0000cc", 1, 1, "#0000cc", 0.2);
 		shape.polygon.overgon = new GPolygon( pointlist, "#ff3300", 1, 1, "#ff3300", 0.2);
 		shape.polygon.overgon.mytype = "shape";
@@ -117,10 +130,123 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 		}
 	},
 
+	"getShape": function(typename, property, value){
+		if( value != '' ){
+			var url = this.wfsGetFeaturePath + "&outputFormat=json&typename=" + typename + "&Filter=<Filter><PropertyIsEqualTo><PropertyName>"+property+"</PropertyName><Literal>"+value+"</Literal></PropertyIsEqualTo></Filter>";
+			loadJSONDoc( url ).addCallback( bind( this.getFeatureByTypeNameCallback, this ) );
+		}
+	},
+
 	"setZipCodeInput": function( shape ){
 		var f = $('list-query-form');
 		f.zipcode.value = shape.name;
+	},
+
+	"search": function( f, page ){
+		this.getContent( f );
+		if( f.zipcode.value != '' ){
+		}else{
+		//	this.RequestContent( f, page );
+		}
+	},
+
+	"getContent": function( f ){
+		var params = [];
+		var rest = function( key,val,hash ){
+			if( typeof( hash ) == "undefined" ){
+				hash = params;
+			}
+			hash.push( "<PropertyIsEqualTo><PropertyName>"+key+"</PropertyName><Literal>"+val+"</Literal></PropertyIsEqualTo>" );
+		}
+
+		// zip
+		if( f.zipcode.value != "" ){
+			var coords = this.zipcodes[f.zipcode.value];
+			params.push( '<Within><PropertyName>geom</PropertyName><gml:Polygon><gml:outerBoundaryIs><gml:LinearRing><gml:coordinates cs="," decimal="." ts=" ">'+coords+'</gml:coordinates></gml:LinearRing></gml:outerBoundaryIs></gml:Polygon></Within>' );
+		}
+
+		// find
+		var findrest = [];
+		if( f.highlight.value != "" ){
+			var finds = f.highlight.value.split(",");
+			for( var i in finds ){
+				// trim leading and trailing white space
+				var find = finds[i].replace(/^[\s]+|[\s]+$/g,"");
+				if( find != '' ) rest("find",find,findrest); 
+			}
+			if( findrest.length > 1 ){
+				var andor = (f.join[0].checked)?"And":"Or";
+				findrest.unshift( "<"+andor+">" );
+				findrest.push( "</"+andor+">" );
+			}
+			if( findrest.length > 0 ) params.push( findrest.join("") );
+		}
+
+		// tags
+		var tagrest = [];
+		if( f.tags.value != "" ){
+			var tags = f.tags.value.split(",");
+			for( var i in tags ){
+				// trim leading and trailing white space
+				var tag = tags[i].replace(/^[\s]+|[\s]+$/g,"");
+				if( tag != '' ) rest("tags",tag,tagrest); 
+			}
+			if( tagrest.length > 1 ){
+				tagrest.unshift( "<Or>" );
+				tagrest.push( "</Or>" );
+			}
+			if( tagrest.length > 0 ) params.push( tagrest.join("") );
+		}
+
+		// content types
+		var ctypes = [];
+		if( f.content_type_guid[0].selected ){
+			var allctypes = true;
+		}
+		for (var i=1; i<f.content_type_guid.length; i++){ 
+			if ( allctypes || f.content_type_guid[i].selected ){
+				rest( "content_type_guid", f.content_type_guid[i].value, ctypes );
+			}
+		}
+		if( ctypes.length > 1 ){
+			ctypes.unshift( "<Or>" );
+			ctypes.push( "</Or>" );
+		}
+		if( ctypes.length > 0 ) params.push( ctypes.join("") );
+
+		if( params.length > 1 ){
+			params.unshift( "<And>" );
+			params.push( "</And>" );
+		}
+
+		var url = this.wfsGetFeaturePath + "&outputFormat=json&typename=liberty&FILTER=<Filter>" + params.join("") + "</Filter>";
+		/*
+		url+='&maxfeatures=20';
+		url+='&offset=10';
+		*/
+
+		loadJSONDoc( url ).addCallback( bind( this.getContentCallback, this ) );
+	},
+
+	"getContentCallback": function( rslt ){
+		var count = rslt.features.length;
+		var hash = { "Status": { "code": 200, "request": "datasearch" }, "Content":[] };
+		if( count > 0 ){
+			var data = rslt.features; 
+			for( var n=0; n<count; n++ ){
+				var item = data[n].properties;
+				var geom = data[n].geometry.coordinates;
+				item.lng = geom[1]; 
+				item.lat = geom[0];
+				item.display_url = '/index.php?content_id=' + item.content_id;
+				hash.Content.push( item ); 
+			}
+		}else{
+			hash.Status.code = 204;
+		}
+		this.ReceiveContent( "No permalink available for this request.", hash );
 	}
+	
 });
 
 function GPlusLabel( Map, overlay, content ){

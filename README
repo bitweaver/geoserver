@@ -34,5 +34,6 @@ admin screen and click on data. Then do the following:
 2) Next create a datastore and connect it to your database and place it in
 the namespace  you just created. The datastore should connect to your
 <dbname> created above.
-3) Finally add the liberty_feature_type as a point feature type.
+3) Finally add the liberty_feature_type as a point feature type and make
+sure it has the alias 'liberty'.
 

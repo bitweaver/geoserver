@@ -1,12 +1,14 @@
-<Filter>
+{strip}
+<Filter xmlns:gml="http://www.opengis.net/gml">
 	{if $bbox}
-	<BBOX xmlns:gml="http://www.opengis.net/gml" >
+	<BBOX>
 	<PropertyName>geom</PropertyName>
         <gml:Box>
           <gml:coordinates>{$bbox}</gml:coordinates>	
         </gml:Box> 
 	</BBOX>
 	{/if}
+	<And>
 	{if $filter}
 		{$filter}
 	{/if}
@@ -22,6 +24,16 @@
 			</PropertyIsEqualTo>
 		</Or>
 	{/if}
+	{if $offset}
+	        <PropertyIsEqualTo>
+			<PropertyName>offset</PropertyName>
+			<Literal>{$offset}</Literal>
+		</PropertyIsEqualTo>
+	{/if}
+        <PropertyIsEqualTo>
+		<PropertyName>requesting_user_is_admin</PropertyName>
+		<Literal>{if $gBitUser->isAdmin()}1{else}0{/if}</Literal>
+	</PropertyIsEqualTo>
         <PropertyIsEqualTo>
 		<PropertyName>requesting_users_id</PropertyName>
 		<Literal>{$gBitUser->mUserId|default:-1}</Literal>
@@ -36,4 +48,6 @@
 		{/foreach}
 		{/strip}</Literal>
 	</PropertyIsEqualTo>
+	</And>
 </Filter>
+{/strip}
