@@ -273,6 +273,8 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 		var listInfo = {};
 		listInfo.items_count = hash.Content.length;
 		listInfo.last_offset = last_offset;
+		// hide the list view link since we cant
+		$('gmap-block-viewaslist').style.display = "none";
 		this.attachZipPagination( listInfo );
 	},
 
