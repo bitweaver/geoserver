@@ -53,6 +53,7 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 			// hack
 			alert( "Sorry, the zipcode you requested could not be found" );
 		}
+		this.zipCheckPending = false;
 	},
 
 	"mapFeatureShape": function(shape){
@@ -144,6 +145,7 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 	},
 
 	"getShape": function(typename, property, value){
+		this.zipCheckPending = true;
 		if( value != '' ){
 			var url = this.wfsGetFeaturePath + "&outputFormat=json&typename=" + typename + "&Filter=<Filter><PropertyIsEqualTo><PropertyName>"+property+"</PropertyName><Literal>"+value+"</Literal></PropertyIsEqualTo></Filter>";
 			loadJSONDoc( url ).addCallback( bind( this.getFeatureByTypeNameCallback, this ) );
@@ -155,13 +157,19 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 		f.zipcode.value = shape.name;
 	},
 
+	"checkZipcode": function( zipcode, f ){
+		if( this.zipCheckPending ){
+			setTimeout( bind( this.checkZipcode, this ), 1000, zipcode, f ); 
+		}else{
+			if( this.zipcodes[zipcode] != undefined ){ 
+				this.getContent( f );
+			}
+		}
+	},
+
 	"search": function( f, page ){
 		if( f.zipcode.value != '' ){
-			if( this.zipcodes[f.zipcode.value] != undefined ){
-				this.getContent( f );
-			}else{
-				alert( "Sorry, we don't know anything about the zipcode, please clear the field or enter a different value and try searching again.");
-			}
+			this.checkZipcode( f.zipcode.value, f );
 		}else{
 			this.RequestContent( f, page );
 		}
