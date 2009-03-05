@@ -44,7 +44,14 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 				shape.polygon.hide();
 				shape.polygon.overgon.show();
 				this.map.addOverlay(shape.label);
+				// what a mess - repeated in poly listner
+				this.clearLastPolygon();
+				this.lastgon = shape.polygon;
 			}
+		}
+		if( count == 0 ){
+			// hack
+			alert( "Sorry, the zipcode you requested could not be found" );
 		}
 	},
 
@@ -57,6 +64,17 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 			shape.polygon.overgon.hide();
 			this.map.addOverlay(shape.polygon);
 			shape.polygon.plotted = true;
+		}
+	},
+
+	"clearLastPolygon": function(){
+		if( this.lastgon != undefined ){
+			this.lastgon.show();
+			this.lastgon.overgon.hide();
+			if( this.lastgon.myref.click != undefined ){
+				GEvent.removeListener( this.lastgon.myref.click );
+			}
+			this.map.removeOverlay(this.lastgon.myref.label);
 		}
 	},
 
@@ -87,12 +105,7 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 
 		GEvent.addListener(shape.polygon, 'mouseover', function(){ 
 			// handling last highlight this way avoids listener delays
-			if( ref.lastgon != undefined ){
-				ref.lastgon.show();
-				ref.lastgon.overgon.hide();
-				GEvent.removeListener( ref.lastgon.myref.click );
-				ref.map.removeOverlay(ref.lastgon.myref.label);
-			}
+			ref.clearLastPolygon();
 			shape.polygon.hide();
 			shape.polygon.overgon.show();
 			shape.click = GEvent.addListener(shape.polygon.overgon, "click", function(overlay){
@@ -143,20 +156,29 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 	},
 
 	"search": function( f, page ){
-		this.getContent( f );
 		if( f.zipcode.value != '' ){
+			if( this.zipcodes[f.zipcode.value] != undefined ){
+				this.getContent( f );
+			}else{
+				alert( "Sorry, we don't know anything about the zipcode, please clear the field or enter a different value and try searching again.");
+			}
 		}else{
-		//	this.RequestContent( f, page );
+			this.RequestContent( f, page );
 		}
 	},
 
-	"getContent": function( f ){
+	"getContent": function( f, offset ){
 		var params = [];
 		var rest = function( key,val,hash ){
 			if( typeof( hash ) == "undefined" ){
 				hash = params;
 			}
 			hash.push( "<PropertyIsEqualTo><PropertyName>"+key+"</PropertyName><Literal>"+val+"</Literal></PropertyIsEqualTo>" );
+		}
+
+		// group
+		if( typeof( f.search_group_content_id ) != 'undefined' ){
+			rest("search_group_content_id",f.search_group_content_id.value); 
 		}
 
 		// zip
@@ -219,16 +241,19 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 			params.push( "</And>" );
 		}
 
-		var url = this.wfsGetFeaturePath + "&outputFormat=json&typename=liberty&FILTER=<Filter>" + params.join("") + "</Filter>";
-		/*
-		url+='&maxfeatures=20';
-		url+='&offset=10';
-		*/
+		var url = this.wfsGetFeaturePath + "&outputFormat=json&maxfeatures=10&typename=liberty&FILTER=<Filter>" + params.join("") + "</Filter>";
 
-		loadJSONDoc( url ).addCallback( bind( this.getContentCallback, this ) );
+		// offset
+		if( offset != undefined ){
+			url+='&offset='+offset;
+		}else{
+			offset = 0;
+		}
+
+		loadJSONDoc( url ).addCallback( bind( this.getContentCallback, this ), offset );
 	},
 
-	"getContentCallback": function( rslt ){
+	"getContentCallback": function( last_offset, rslt ){
 		var count = rslt.features.length;
 		var hash = { "Status": { "code": 200, "request": "datasearch" }, "Content":[] };
 		if( count > 0 ){
@@ -245,6 +270,30 @@ MochiKit.Base.update(BitMap.Map.prototype, {
 			hash.Status.code = 204;
 		}
 		this.ReceiveContent( "No permalink available for this request.", hash );
+		var listInfo = {};
+		listInfo.items_count = hash.Content.length;
+		listInfo.last_offset = last_offset;
+		this.attachZipPagination( listInfo );
+	},
+
+	"attachZipPagination": function(ListInfo){
+		//forced some day could allow this to be variable
+		var max_count = 10;
+
+		var ic = ListInfo.items_count;
+		var lo = ListInfo.last_offset;
+
+		if ( ic == max_count || lo > 0 ){
+			var prevLink = (lo > 0)?A ( {'href':'javascript:void(0);', 'onclick':'javascript:BitMap.MapData[0].Map.getContent(document["list-query-form"],'+(lo-max_count)+');'}, "« Prev "+max_count ):null;
+			var nextLink = (ic == max_count)?A ( {'href':'javascript:void(0);', 'onclick':'javascript:BitMap.MapData[0].Map.getContent(document["list-query-form"],'+(lo+max_count)+');'}, "Next "+max_count+" »" ):null;
+			
+			var d =DIV( {'class':'pagination'}, 
+				prevLink,
+				(( prevLink != null && nextLink != null )?SPAN( null, " - " ):null),
+				nextLink
+			);
+			$('gmap-sidepanel-table').appendChild( d );
+		}
 	}
 	
 });
