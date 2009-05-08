@@ -475,8 +475,6 @@ public class DefaultSQLBuilder implements SQLBuilder {
 								 "(lc.content_id = lcpermrev.content_id AND lcpermrev.perm_name = lcpm.perm_name AND lcpermrev.group_id IN (");
 				sqlBuffer.append(group_ids);
 				sqlBuffer.append(") AND lcpermrev.is_revoked = 'y' )");
-			} else {
-				sqlBuffer.append(" lc ");
 			}
 
 			LOGGER.fine("HACK DONE!");
