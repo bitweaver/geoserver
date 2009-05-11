@@ -344,6 +344,7 @@ GPlusLabel.prototype.redraw = function(force) {
 	}else{
 		var latlng = this.latlng_;	
 		var mapBounds = this.map_.getBounds();
+		/*
 		if( mapBounds.intersects( this.overlayBounds_ ) && !mapBounds.containsLatLng( this.latlng_ ) ){ 
 			var b1 = new GBounds([this.map_.fromLatLngToContainerPixel(mapBounds.getSouthWest()), this.map_.fromLatLngToContainerPixel(mapBounds.getNorthEast())]);
 			var b2 = new GBounds([this.map_.fromLatLngToContainerPixel(this.overlayBounds_.getSouthWest()), this.map_.fromLatLngToContainerPixel(this.overlayBounds_.getNorthEast())]);
@@ -351,6 +352,7 @@ GPlusLabel.prototype.redraw = function(force) {
 			var p = b.mid();
 			latlng = this.map_.fromContainerPixelToLatLng(p);
 		}
+		*/
 		var pos = this.map_.fromLatLngToDivPixel( latlng );
 		var xPos = Math.round(pos.x - this.div_.clientWidth / 2);
 		var yPos = Math.round(pos.y - this.div_.clientHeight / 2);
