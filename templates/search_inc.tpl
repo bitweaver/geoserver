@@ -1,4 +1,4 @@
-{if $smarty.const.ACTIVE_PACKAGE eq 'gmap' || $smarty.request.display_mode eq 'map'}
+{if $map_search_srvc eq TRUE || $smarty.request.display_mode eq 'map'}
 <div class="row">
 	{formlabel label="Zip Code:" for="zipcode"}
 	{forminput}
