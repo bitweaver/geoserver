@@ -3,11 +3,11 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.10 2009/03/04 22:00:44 tekimaki Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.11 2010/02/08 21:37:56 wjames Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
-require_once( '../bit_setup_inc.php' );
+require_once( '../kernel/setup_inc.php' );
 
 /**
  *

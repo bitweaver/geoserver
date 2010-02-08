@@ -3,7 +3,7 @@
  * A straight WMS proxy
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.5 2008/12/16 19:00:46 tekimaki Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.6 2010/02/08 21:37:56 wjames Exp $
  * @author   spider <nick@sluggardy.net>
  */
 
@@ -15,7 +15,7 @@
  * @param string $exception The exception message to send
  */
 function geoserver_exception($exception) {
-  require_once( '../bit_setup_inc.php' );
+  require_once( '../kernel/setup_inc.php' );
 
   global $gBitSmarty, $gBitSystem;
   $gBitSmarty->assign('exception', $exception);

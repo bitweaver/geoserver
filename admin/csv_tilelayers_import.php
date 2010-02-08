@@ -7,7 +7,7 @@ $excludeTilelayers = array( 'ca_zip_5_Type', 'liberty_feature_type_Type' );
 
 
 // lets get started
-require_once( '../../bit_setup_inc.php' );
+require_once( '../../kernel/setup_inc.php' );
 
 require_once( '../geoserver_lib.php' );
 

@@ -3,11 +3,11 @@
  * A straight REST proxy
  *
  * @package  rest
- * @version  $Header: /home/cvs/bwpkgs/geoserver/rest_query.php,v 1.3 2008/12/16 19:00:46 tekimaki Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/rest_query.php,v 1.4 2010/02/08 21:37:56 wjames Exp $
  * @author   nick <nick@sluggardy.net>
  */
 
-require_once( '../bit_setup_inc.php' );
+require_once( '../kernel/setup_inc.php' );
 
 // TODO: Move to a library
 /**
@@ -17,7 +17,7 @@ require_once( '../bit_setup_inc.php' );
  * @param string $exception The exception message to send
  */
 function rest_exception($exception) {
-  require_once( '../bit_setup_inc.php' );
+  require_once( '../kernel/setup_inc.php' );
   global $gBitSmarty, $gBitSystem;
   $gBitSmarty->assign('exception', $exception);
   $gBitSystem->fatalError($exception);

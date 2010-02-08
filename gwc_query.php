@@ -3,11 +3,11 @@
  * A straight GWC proxy
  *
  * @package  gwc
- * @version  $Header: /home/cvs/bwpkgs/geoserver/gwc_query.php,v 1.1 2008/09/16 18:58:24 waterdragon Exp $
+ * @version  $Header: /home/cvs/bwpkgs/geoserver/gwc_query.php,v 1.2 2010/02/08 21:37:56 wjames Exp $
  * @author   nick <nick@sluggardy.net>
  */
 
-require_once( '../bit_setup_inc.php' );
+require_once( '../kernel/setup_inc.php' );
 
 // TODO: Move to a library
 /**
