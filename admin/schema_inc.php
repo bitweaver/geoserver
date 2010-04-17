@@ -28,4 +28,8 @@ $sequences = array (
   'geoserver_tl_theme_id_seq' => array( 'start' => 1 ),
 );
 $gBitInstaller->registerSchemaSequences( GEOSERVER_PKG_NAME, $sequences );
-?>
+
+// Requirements
+$gBitInstaller->registerRequirements( GEOSERVER_PKG_NAME, array(
+	'liberty' => array( 'min' => '2.1.4' ),
+));
