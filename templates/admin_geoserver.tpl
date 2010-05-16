@@ -74,5 +74,25 @@
 		</p>
 		{/legend}
 	{/jstab}
+	{jstab title="GeoServer"}
+		{legend legend="Geoserver Setting"}
+			{form}
+				<input type="hidden" name="page" value="{$page}" />
+
+				<div class="row">
+					{formlabel label="Geoserver URL" for="geoserver_url"}
+					{forminput}
+						<input type="text" name="geoserver_url" id="geoserver_url" value="{$gBitSystem->getConfig('geoserver_url', 'http://localhost:8080/geoserver/')}" />
+						{formhelp note="Enter the URL for your geoserver installation."}
+					{/forminput}
+				</div>
+
+				<div class="row submit">
+					<input type="submit" name="batch_submit" value="{tr}Submit{/tr}" />
+				</div>
+			{/form}
+		{/legend}
+	{/jstab}
+
 {/jstabs}
 {/strip}
