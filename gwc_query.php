@@ -3,7 +3,7 @@
  * A straight GWC proxy
  *
  * @package  gwc
- * @version  $Header: /home/cvs/bwpkgs/geoserver/gwc_query.php,v 1.2 2010/02/08 21:37:56 wjames Exp $
+ * @version  $Header$
  * @author   nick <nick@sluggardy.net>
  */
 

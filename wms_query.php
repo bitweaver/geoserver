@@ -3,7 +3,7 @@
  * A straight WMS proxy
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wms_query.php,v 1.6 2010/02/08 21:37:56 wjames Exp $
+ * @version  $Header$
  * @author   spider <nick@sluggardy.net>
  */
 

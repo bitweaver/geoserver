@@ -3,7 +3,7 @@
  * A straight WWW proxy
  *
  * @package  www
- * @version  $Header: /home/cvs/bwpkgs/geoserver/www_query.php,v 1.3 2010/02/08 21:37:56 wjames Exp $
+ * @version  $Header$
  * @author   nick <nick@sluggardy.net>
  */
 

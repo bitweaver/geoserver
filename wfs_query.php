@@ -3,7 +3,7 @@
  * Makes a WFS query easier to do.
  *
  * @package  geoserver
- * @version  $Header: /home/cvs/bwpkgs/geoserver/wfs_query.php,v 1.11 2010/02/08 21:37:56 wjames Exp $
+ * @version  $Header$
  * @author   spider <nick@sluggardy.net>
  */
 

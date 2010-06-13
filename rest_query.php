@@ -3,7 +3,7 @@
  * A straight REST proxy
  *
  * @package  rest
- * @version  $Header: /home/cvs/bwpkgs/geoserver/rest_query.php,v 1.4 2010/02/08 21:37:56 wjames Exp $
+ * @version  $Header$
  * @author   nick <nick@sluggardy.net>
  */
 
