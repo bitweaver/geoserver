@@ -19,7 +19,7 @@ installing bitweaver do the following:
 
 Next install bitweaver into this database. Be sure to install
 gmap, geoserver and geo when you install. You can either pause before
-the package installation step and add to your config/kernel_config.php:
+the package installation step and add to your config/config_inc.php:
 define('POSTGIS_SUPPORT', true); 
 define('POSTGIS_SRID', 4326);
 
